@@ -50,13 +50,13 @@ int SetLib(char *name) { //начальная инициализация
 	static int i;
 	zapblk blk[1];
 
-	if( strlen(name)==0 && fdz_lib!=-1) {
-		close(fdz_lib);
-		fdz_lib=-1;
-		return 1;
-	}
 	if( fdz_lib!=-1) {
 		close(fdz_lib);
+		fdz_lib=-1;
+	}
+	// PATCH: empty library name
+	if( (name==NULL) || (strlen(name)==0) ) {
+		return 1;
 	}
 
 	strcpy(name_lib,name);

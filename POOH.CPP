@@ -2,6 +2,7 @@
 #include	<dos.h>
 #include	<malloc.h>
 #include	<string.h>
+#include	<io.h> // PATCH: access()
 
 #include "famegraf.h"
 #include "joy.h"
@@ -382,6 +383,25 @@ int main(void) {
 	block mpcs; // PATCH: PC Speaker
 	#endif
 
+	// PATCH: check for library files
+	if (
+		access("GRAPH.FML", 6) ||
+		access("LEVELS.FML", 6) ||
+		access("MULT.FML", 6) ||
+		access("BOSS.FMS", 4) ||
+		access("COMING.FMS", 4) ||
+		access("GLOOM.FMS", 4) ||
+		access("ICE.FMS", 4) ||
+		access("INTRO.FMS", 4) ||
+		access("LEAF.FMS", 4) ||
+		access("LYRA.FMS", 4) ||
+		access("SIMPLE.FMS", 4) ||
+		access("SPECCY.FMS", 4) ||
+		access("TECHPOOH.FMS", 4)
+	) {
+		fatalerror("! Missing one or more resource files !");
+	}
+
 	kb_set(md);
 	kb_on();
 
@@ -719,7 +739,7 @@ mainmenu:
 			MoveXY(5,10);
 			vputBs("Супер Винни-Пух",tfnt+144*4);
 			MoveXY(22,170);
-			vputBs("(C) 2023, v2.06", tfnt + 144 * 1); // PATCH: show version and year
+			vputBs("(C) 2024, v2.07", tfnt + 144 * 1); // PATCH: show version and year
 			//vputBs("(C) 1996 FaMe",tfnt+144*1);
 #ifdef DEMO
 			MoveXY(10,192);

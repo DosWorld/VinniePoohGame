@@ -38,7 +38,7 @@ typedef struct {
 
 static bmp_data scr_data;
 static scr_head fscr;
-static HWND hWndMain;
+static HWND hWndMain = 0;
 static UINT hVSyncProc;
 static LONG lSyncFlag = 0;
 
@@ -104,17 +104,22 @@ int hsize, dsize;
 // fast image resize
 void ResizeToScreen(const BYTE *sb) {
 DWORD i, j, coffx, coffy, cx, cy;
-BYTE *p;
+WORD *wx, *wy; // opt
+BYTE *p, *o;
   if (sb && fscr.f && fscr.p && (!fscr.b)) {
     // TODO: replace hardcoded 320 and 200
     coffx = (320UL << 16) / fscr.w;
     coffy = (200UL << 16) / fscr.h;
     cy = 0;
+    wx = (WORD *) &cx; wx++; // opt
+    wy = (WORD *) &cy; wy++; // opt
     for (j = 0; j < fscr.h; j++) {
       p = (BYTE *) &fscr.p[((j + fscr.y) * fscr._w) + fscr.x];
       cx = 0;
+      o = &sb[*wy * 320]; // opt
       for (i = 0; i < fscr.w; i++) {
-        *p = sb[((cy >> 16) * 320) + (cx >> 16)];
+        //*p = sb[((cy >> 16) * 320) + (cx >> 16)];
+        *p = o[*wx]; // opt
         cx += coffx;
         p++;
       }
@@ -208,7 +213,9 @@ HDC hc;
         );
       }
       ReleaseDC(wnd, hc);
-      ValidateRect(wnd, NULL);
+      //ValidateRect(wnd, NULL);
+      //RedrawWindow(wnd, NULL, NULL, RDW_VALIDATE | RDW_NOERASE | RDW_NOFRAME | RDW_NOINTERNALPAINT | RDW_UPDATENOW | RDW_ALLCHILDREN);
+      GdiFlush();
     }
   }
 }
@@ -419,17 +426,28 @@ void *sysGetVidScreen(void) {
   return(scr_data.data);
 }
 
+/*
+https://i.sstatic.net/VfiZu.png
+Vertical Timing (frame)
+
+VGA Signal 640x480 @ 60 Hz Industry standard timing
+
+Frame part   | Lines | Time (ms)
+-------------+-------+--------------------
+Visible area |  480  | 15.253227408143
+Front porch  |   10  |  0.31777557100298
+Sync pulse   |    2  |  0.063555114200596
+Back porch   |   33  |  1.0486593843098
+Whole frame  |  525  | 16.683217477656
+*/
+
 // 60 FPS - DOS monitor refresh rate
 DWORD dwPF = 0;
 void sysWaitForVSync(void) {
 DWORDLONG x;
-//  if (hVSyncEvent) {
-//    WaitForSingleObject(hVSyncEvent, INFINITE);
-//  }
   do {
     x = timeGetTime();
-    x *= 3;
-    x /= 50;
+    x = (x * 60) / 1000;
   } while (((DWORD) x) == dwPF);
   dwPF = x;
 }
@@ -438,8 +456,7 @@ DWORDLONG x;
 long sysGetTicks(void) {
 DWORDLONG x;
   x = timeGetTime();
-  x *= 298295;
-  x /= (1000 * 16384);
+  x = (x * 1193180) / (1000 * 65536);
   return(x);
 }
 
@@ -588,4 +605,10 @@ unsigned short butt;
 
 void js_test(void) {
   // FIXME: not used
+}
+
+int puts(const char *s) {
+  if ((s) && (*s == '!')) {
+    MessageBox(hWndMain ? hWndMain : 0, s, NULL, MB_OK);
+  }
 }

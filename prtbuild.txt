@@ -1,9 +1,9 @@
-Super Pooh. Супер Винни-Пух. v2.06
+Super Pooh. Супер Винни-Пух. v2.07
 (c) FaMe SoftWare 1995-96
 e-mail: bmv(a)mail.ru
 official GitHub repository: https://github.com/D0NM/Vinnie
 
-(c) -=CHE@TER=- 2022,2023
+(c) -=CHE@TER=- 2022-2024
 e-mail: _ctpax_(a)mail.ru
 web: http://ctpax-cheater.losthost.org/htmldocs/pooh.htm
 
@@ -57,6 +57,8 @@ platform.c - Windows routines
 platform.h - Windows routines
 
 setpoohw.c - very simply standalone setup tool for Windows
+
+SETPOOH.CPP - updated code for setup tool for DOS
 
 You may need to replace *.CPP extension with *.c ("c" lowercased) or you may get a "__gxx_personality_v0" error in GCC.
 I use to compile GCC 3.2 (mingw special 20020817-1) from DEV-CPP distributive.

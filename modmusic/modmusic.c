@@ -95,6 +95,8 @@ DWORD i;
     for (i = 0; i < MAX_BUFF; i++) {
       waveOutUnprepareHeader(hwo, &wh[i], sizeof(wh[0]));
     }
+    // restore max Left/Right volume balance
+    waveOutSetVolume(hwo, 0xFFFFFFFFUL);
     waveOutClose(hwo);
   }
 }
@@ -249,7 +251,9 @@ DWORD i, *d;
 
 void ModLoudMusic(int volume) {
   if (he) {
-    // byte to word (0xFF => 0xFFFF)
-    waveOutSetVolume(hwo, volume * 0x0101);
+    volume = (volume <   0) ?   0 : volume;
+    volume = (volume > 255) ? 255 : volume;
+    // BYTE to DWORD (0xFF => 0xFFFFFFFF)
+    waveOutSetVolume(hwo, (volume * 0x0101U) * 0x00010001UL);
   }
 }
